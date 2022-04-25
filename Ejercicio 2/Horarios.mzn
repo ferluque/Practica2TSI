@@ -1,10 +1,89 @@
 % Use this editor as a MiniZinc scratch book
 % b. Existen 9 asignaturas con horas a la semana:
-set of int : HORAS_SEMANALES = {4,2,4,4,4,2,2,2,1};
+% COMO HAGO QUE NO SE ELIMINEN LOS REPETIDOS
+set of int : HORAS_SEMANALES = {5,4,2,4,4,4,2,2,2,1};
 set of int : HORAS_DIA = 1..6;
-set of int : DIAS_SEMANA = 1..7;
-% a. existe un aula disponible en seis franjas consecutivas
-array [HORAS_DIA,DIAS_SEMANA] of var 0..9: horario;
-% c.
+set of int : DIAS_SEMANA = 1..5;
+set of int : UNAHORA = {2,6,7,9,0};
+set of int : DOSHORAS = {1,3,4,5,8};
+set of int : ASIGNATURAS = 0..9;
 
-% d. 
+set of int : P1={1,3};
+set of int : P2={4,5};
+set of int : P3={6,9};
+% a. existe un aula disponible en seis franjas consecutivas
+array [HORAS_DIA,DIAS_SEMANA] of var ASIGNATURAS: horario;
+% b. Número máximo de horas
+% constraint
+%   forall(asig in ASIGNATURAS)(
+%     count(i in HORAS_DIA, j in DIAS_SEMANA)(horario[i,j]==asig)==HORAS_SEMANALES[asig]
+%   );
+% c. En solitario las de UNAHORA
+constraint
+  forall(dia in DIAS_SEMANA)(
+    forall(hora in 2..5)(
+      if horario[hora,dia] in UNAHORA then
+        horario[hora-1,dia]!=horario[hora,dia] /\ horario[hora+1,dia]!=horario[hora,dia]
+      endif
+    )
+  );
+% De dos en dos las de DOSHORAS
+constraint
+  forall(dia in DIAS_SEMANA)(
+    forall(hora in HORAS_DIA)(
+      if horario[hora,dia] in DOSHORAS then
+        if hora==1 then
+          (horario[hora,dia]==horario[hora+1,dia]/\horario[hora,dia]!=horario[hora+2,dia])
+        else      
+          if hora==6 then
+            (horario[hora,dia]==horario[hora-1,dia]/\horario[hora,dia]!=horario[hora-2,dia])
+          else
+            if hora==2 then
+              horario[hora,dia]==horario[hora-1,dia]
+            else
+              if hora==5 then
+                horario[hora,dia]==horario[hora+1,dia]
+              else
+                (horario[hora,dia]==horario[hora+1,dia]/\horario[hora,dia]!=horario[hora+2,dia])\/
+                (horario[hora,dia]==horario[hora-1,dia]/\horario[hora,dia]!=horario[hora-2,dia])
+              endif
+            endif
+          endif
+        endif
+      endif
+    )
+  );
+% d. En cada día de la semana un bloque
+% Los de una hora
+constraint
+  forall(dia in DIAS_SEMANA)(
+    forall(hora in HORAS_DIA) (
+      if horario[hora,dia] in UNAHORA then
+        count(i in HORAS_DIA)(horario[i,dia]=horario[hora,dia])==1
+      else
+        count(i in HORAS_DIA)(horario[i,dia]=horario[hora,dia])==2
+      endif
+    )
+  );
+  
+% e,f. Profesores  
+constraint
+  forall(dia in DIAS_SEMANA)(
+    count(hora in HORAS_DIA)(horario[hora,dia] in P1)<=2
+  );
+  
+constraint
+  forall(dia in DIAS_SEMANA)(
+    count(hora in HORAS_DIA)(horario[hora,dia] in P2)<=2
+  );
+ 
+ constraint
+  forall(dia in DIAS_SEMANA)(
+    count(hora in HORAS_DIA)(horario[hora,dia] in P3)<=1
+  );
+% g. recreo
+constraint
+  forall(dia in DIAS_SEMANA)(
+    horario[4,dia]==0
+   );
+solve satisfy;
