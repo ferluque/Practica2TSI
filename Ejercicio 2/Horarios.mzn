@@ -14,10 +14,18 @@ set of int : P3={6,9};
 % a. existe un aula disponible en seis franjas consecutivas
 array [HORAS_DIA,DIAS_SEMANA] of var ASIGNATURAS: horario;
 % b. Número máximo de horas
-% constraint
-%   forall(asig in ASIGNATURAS)(
-%     count(i in HORAS_DIA, j in DIAS_SEMANA)(horario[i,j]==asig)==HORAS_SEMANALES[asig]
-%   );
+constraint count(i in HORAS_DIA, j in DIAS_SEMANA)(horario[i,j]==1)==4;
+constraint count(i in HORAS_DIA, j in DIAS_SEMANA)(horario[i,j]==2)==2;
+constraint count(i in HORAS_DIA, j in DIAS_SEMANA)(horario[i,j]==3)==4;
+constraint count(i in HORAS_DIA, j in DIAS_SEMANA)(horario[i,j]==4)==4;
+constraint count(i in HORAS_DIA, j in DIAS_SEMANA)(horario[i,j]==5)==4;
+constraint count(i in HORAS_DIA, j in DIAS_SEMANA)(horario[i,j]==6)==2;
+constraint count(i in HORAS_DIA, j in DIAS_SEMANA)(horario[i,j]==7)==2;
+constraint count(i in HORAS_DIA, j in DIAS_SEMANA)(horario[i,j]==8)==2;
+constraint count(i in HORAS_DIA, j in DIAS_SEMANA)(horario[i,j]==9)==1;
+
+
+
 % c. En solitario las de UNAHORA
 constraint
   forall(dia in DIAS_SEMANA)(
@@ -86,4 +94,90 @@ constraint
   forall(dia in DIAS_SEMANA)(
     horario[4,dia]==0
    );
+   
+% h. P1 dos últimas horas
+constraint 
+  forall(dia in DIAS_SEMANA)(
+    forall(hora in 1..4)(
+      not (horario[hora,dia] in P1)
+    )
+  );
+  
+% P2 dos primeras horas
+constraint
+  forall(dia in DIAS_SEMANA)(
+    forall(hora in 3..6)(
+      not (horario[hora,dia] in P2)
+    )
+  );
+% P3 solo antes del recreo
+constraint
+  forall(dia in DIAS_SEMANA)(
+    forall(hora in {1,2,4,6})(
+      not (horario[hora,dia] in P3)
+    )
+  );
+
+%i.
+% A1 lunes o martes
+constraint
+  forall(dia in 3..5)(
+    forall(hora in HORAS_DIA)(
+      horario[hora,dia]!=1
+    )
+  );
+% A3 miercoles o jueves
+constraint
+  forall(dia in {1,2,5})(
+    forall(hora in HORAS_DIA)(
+      horario[hora,dia]!=3
+    )
+  );
+  
+% % A4 lunes o martes
+constraint
+  forall(dia in 3..5)(
+    forall(hora in HORAS_DIA)(
+      horario[hora,dia]!=4
+    )
+  );
+
+% % A5 jueves o viernes
+constraint
+  forall(dia in 1..3)(
+    forall(hora in HORAS_DIA)(
+      horario[hora,dia]!=5
+    )
+  );
+ 
+% %A6 miércoles o viernes
+constraint
+  forall(dia in {1,2,4})(
+    forall(hora in HORAS_DIA)(
+      horario[hora,dia]!=6
+    )
+  );
+  
+% %A7 martes o viernes
+constraint
+  forall(dia in {1,3,4})(
+    forall(hora in HORAS_DIA)(
+      horario[hora,dia]!=7
+    )
+  );
+  
+% % A8 miércoles
+constraint
+  forall(dia in {1,2,4,5})(
+    forall(hora in HORAS_DIA)(
+      horario[hora,dia]!=8
+    )
+  );
+% % A9 lunes
+constraint
+  forall(dia in 2..5)(
+    forall(hora in HORAS_DIA)(
+      horario[hora,dia]!=9
+    )
+  );
 solve satisfy;
