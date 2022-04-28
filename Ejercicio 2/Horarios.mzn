@@ -14,6 +14,7 @@ set of int : P3={6,9};
 % a. existe un aula disponible en seis franjas consecutivas
 array [HORAS_DIA,DIAS_SEMANA] of var ASIGNATURAS: horario;
 % b. Número máximo de horas
+% constraint forall(asig in ASIGNATURAS)(count(i in HORAS_DIA, j in DIAS_SEMANA)(horario[i,j]==1)==HORAS_SEMANALES[asig]);
 constraint count(i in HORAS_DIA, j in DIAS_SEMANA)(horario[i,j]==1)==4;
 constraint count(i in HORAS_DIA, j in DIAS_SEMANA)(horario[i,j]==2)==2;
 constraint count(i in HORAS_DIA, j in DIAS_SEMANA)(horario[i,j]==3)==4;
@@ -23,8 +24,6 @@ constraint count(i in HORAS_DIA, j in DIAS_SEMANA)(horario[i,j]==6)==2;
 constraint count(i in HORAS_DIA, j in DIAS_SEMANA)(horario[i,j]==7)==2;
 constraint count(i in HORAS_DIA, j in DIAS_SEMANA)(horario[i,j]==8)==2;
 constraint count(i in HORAS_DIA, j in DIAS_SEMANA)(horario[i,j]==9)==1;
-
-
 
 % c. En solitario las de UNAHORA
 constraint
@@ -113,7 +112,7 @@ constraint
 % P3 solo antes del recreo
 constraint
   forall(dia in DIAS_SEMANA)(
-    forall(hora in {1,2,4,6})(
+    forall(hora in {1,2,4,5,6})(
       not (horario[hora,dia] in P3)
     )
   );
